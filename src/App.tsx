@@ -1,4 +1,154 @@
-import { useState } from 'react';
+import { useState, createContext, useContext } from 'react';
+
+type Lang = 'en' | 'ar';
+const LangContext = createContext<{ lang: Lang; t: (key: string) => string; toggle: () => void }>({
+  lang: 'en', t: (k) => k, toggle: () => {},
+});
+const useLang = () => useContext(LangContext);
+
+const translations: Record<string, Record<Lang, string>> = {
+  'nav.features': { en: 'Features', ar: 'المميزات' },
+  'nav.templates': { en: 'Templates', ar: 'القوالب' },
+  'nav.ai': { en: 'AI Agents', ar: 'وكلاء الذكاء الاصطناعي' },
+  'nav.pricing': { en: 'Pricing', ar: 'الأسعار' },
+  'nav.signin': { en: 'Sign In', ar: 'تسجيل الدخول' },
+  'nav.trial': { en: 'Start Free Trial', ar: 'ابدأ تجربة مجانية' },
+  'hero.badge': { en: 'Now with AI-Powered Module Creation', ar: 'الآن مع إنشاء الوحدات بالذكاء الاصطناعي' },
+  'hero.title1': { en: 'Your Business,', ar: 'أعمالك،' },
+  'hero.title2': { en: 'Unboxed', ar: 'بلا حدود' },
+  'hero.sub': { en: 'The modular ERP platform with ready-to-use industry templates. Launch in minutes with AI agents that build your custom modules, workflows, and automations.', ar: 'منصة ERP المعيارية مع قوالب جاهزة للاستخدام. انطلق في دقائق مع وكلاء الذكاء الاصطناعي الذين يبنون وحداتك وسير العمل والأتمتة المخصصة.' },
+  'hero.trial': { en: 'Start Free Trial', ar: 'ابدأ تجربة مجانية' },
+  'hero.demo': { en: 'Watch Demo', ar: 'شاهد العرض' },
+  'hero.proof': { en: 'No credit card required \u00b7 14-day free trial \u00b7 Cancel anytime', ar: 'لا حاجة لبطاقة ائتمان \u00b7 تجربة مجانية 14 يوم \u00b7 إلغاء في أي وقت' },
+  'feat.label': { en: 'Everything You Need', ar: 'كل ما تحتاجه' },
+  'feat.title': { en: 'One platform, unlimited possibilities', ar: 'منصة واحدة، إمكانيات غير محدودة' },
+  'feat.sub': { en: 'From lead capture to deal close, from workflow automation to AI insights \u2014 ERPnBox handles it all.', ar: 'من التقاط العملاء المحتملين إلى إغلاق الصفقات، ومن أتمتة سير العمل إلى رؤى الذكاء الاصطناعي \u2014 ERPnBox يتولى كل شيء.' },
+  'feat.0.title': { en: 'Dynamic Modules', ar: 'وحدات ديناميكية' },
+  'feat.0.desc': { en: 'Create custom modules with any field type. No coding required \u2014 just define your data model and go.', ar: 'أنشئ وحدات مخصصة بأي نوع حقل. لا حاجة للبرمجة \u2014 حدد نموذج بياناتك وانطلق.' },
+  'feat.1.title': { en: 'CRM & Contact Management', ar: 'إدارة علاقات العملاء وجهات الاتصال' },
+  'feat.1.desc': { en: 'Manage leads, contacts, accounts, and deals through a fully customizable pipeline.', ar: 'أدر العملاء المحتملين وجهات الاتصال والحسابات والصفقات من خلال مسار قابل للتخصيص بالكامل.' },
+  'feat.2.title': { en: 'Workflow Automation', ar: 'أتمتة سير العمل' },
+  'feat.2.desc': { en: 'Build automated workflows with conditions, field updates, email alerts, webhooks, and assignment rules.', ar: 'أنشئ سير عمل آلي مع شروط وتحديثات الحقول وتنبيهات البريد الإلكتروني والويب هوك وقواعد التعيين.' },
+  'feat.3.title': { en: 'Roles & Profiles', ar: 'الأدوار والملفات الشخصية' },
+  'feat.3.desc': { en: 'Enterprise-grade RBAC with role hierarchy, field-level permissions, and data sharing rules.', ar: 'نظام صلاحيات متقدم مع تسلسل الأدوار وأذونات على مستوى الحقل وقواعد مشاركة البيانات.' },
+  'feat.4.title': { en: 'KPI Tracking', ar: 'تتبع مؤشرات الأداء' },
+  'feat.4.desc': { en: 'Define performance indicators and assign them to individuals, roles, or teams with real-time dashboards.', ar: 'حدد مؤشرات الأداء وعيّنها للأفراد أو الأدوار أو الفرق مع لوحات معلومات في الوقت الفعلي.' },
+  'feat.5.title': { en: 'Meeting Scheduler', ar: 'جدولة الاجتماعات' },
+  'feat.5.desc': { en: 'Intuitive calendar-based meeting creation with drag-and-drop time selection and attendee management.', ar: 'إنشاء اجتماعات بتقويم سهل مع اختيار الوقت بالسحب والإفلات وإدارة الحضور.' },
+  'feat.6.title': { en: 'Email Integration', ar: 'تكامل البريد الإلكتروني' },
+  'feat.6.desc': { en: 'Send emails directly from records with customizable templates and full activity tracking.', ar: 'أرسل رسائل بريد إلكتروني مباشرة من السجلات مع قوالب قابلة للتخصيص وتتبع كامل للنشاط.' },
+  'feat.7.title': { en: 'Custom Functions', ar: 'الدوال المخصصة' },
+  'feat.7.desc': { en: 'Write serverless functions in JavaScript that execute on triggers, schedules, or API calls.', ar: 'اكتب دوال بدون خادم بلغة JavaScript تنفذ عند المحفزات أو الجداول أو استدعاءات API.' },
+  'feat.8.title': { en: 'Multi-Tenant SaaS', ar: 'SaaS متعدد المستأجرين' },
+  'feat.8.desc': { en: 'Built for scale with row-level tenant isolation, per-tenant customization, and platform admin controls.', ar: 'مبني للتوسع مع عزل المستأجرين على مستوى الصف وتخصيص لكل مستأجر وأدوات إدارة المنصة.' },
+  'tmpl.label': { en: 'Ready-to-Use Templates', ar: 'قوالب جاهزة للاستخدام' },
+  'tmpl.title': { en: 'Launch your CRM in minutes, not months', ar: 'أطلق نظام CRM الخاص بك في دقائق، وليس أشهر' },
+  'tmpl.sub': { en: 'Choose an industry template pre-loaded with modules, fields, workflows, and sample data. Customize everything to fit your business perfectly.', ar: 'اختر قالب صناعي محمّل مسبقاً بالوحدات والحقول وسير العمل وبيانات عينة. خصص كل شيء ليناسب عملك بشكل مثالي.' },
+  'tmpl.use': { en: 'Use this template', ar: 'استخدم هذا القالب' },
+  'tmpl.more': { en: 'More templates added monthly. Or create your own from scratch.', ar: 'يتم إضافة المزيد من القوالب شهرياً. أو أنشئ قالبك من الصفر.' },
+  'tmpl.0.name': { en: 'Real Estate CRM', ar: 'إدارة العقارات' },
+  'tmpl.0.desc': { en: 'Properties, listings, agents, viewings, commissions, and closing pipelines.', ar: 'العقارات والقوائم والوكلاء والمعاينات والعمولات ومسارات الإغلاق.' },
+  'tmpl.1.name': { en: 'Sales CRM', ar: 'إدارة المبيعات' },
+  'tmpl.1.desc': { en: 'Full sales pipeline with leads, contacts, accounts, deals, and activities.', ar: 'مسار مبيعات كامل مع العملاء المحتملين وجهات الاتصال والحسابات والصفقات والأنشطة.' },
+  'tmpl.2.name': { en: 'Recruitment', ar: 'التوظيف' },
+  'tmpl.2.desc': { en: 'Candidates, job openings, interviews, offers, and onboarding tracking.', ar: 'المرشحون وفرص العمل والمقابلات والعروض وتتبع التهيئة.' },
+  'tmpl.3.name': { en: 'Project Management', ar: 'إدارة المشاريع' },
+  'tmpl.3.desc': { en: 'Projects, tasks, milestones, timesheets, and team collaboration.', ar: 'المشاريع والمهام والمراحل وجداول الوقت والتعاون الجماعي.' },
+  'tmpl.4.name': { en: 'Education', ar: 'التعليم' },
+  'tmpl.4.desc': { en: 'Students, courses, enrollments, grades, and fee management.', ar: 'الطلاب والدورات والتسجيل والدرجات وإدارة الرسوم.' },
+  'tmpl.5.name': { en: 'Healthcare', ar: 'الرعاية الصحية' },
+  'tmpl.5.desc': { en: 'Patients, appointments, treatments, prescriptions, and billing.', ar: 'المرضى والمواعيد والعلاجات والوصفات والفواتير.' },
+  'ai.badge': { en: 'Powered by AI', ar: 'مدعوم بالذكاء الاصطناعي' },
+  'ai.title': { en: 'AI Agents that build your ERP', ar: 'وكلاء ذكاء اصطناعي يبنون نظام ERP الخاص بك' },
+  'ai.sub': { en: 'Stop configuring. Start describing. Our AI agents turn your words into fully functional modules, workflows, and automations.', ar: 'توقف عن التكوين. ابدأ بالوصف. وكلاء الذكاء الاصطناعي لدينا يحولون كلماتك إلى وحدات وسير عمل وأتمتة كاملة الوظائف.' },
+  'ai.0.title': { en: 'AI Module Creator', ar: 'منشئ الوحدات بالذكاء الاصطناعي' },
+  'ai.0.desc': { en: 'Describe your business process in plain English. Our AI agent designs the perfect module with fields, validations, and workflows \u2014 ready in seconds.', ar: 'صف عملية عملك بلغة بسيطة. وكيل الذكاء الاصطناعي يصمم الوحدة المثالية بالحقول والتحققات وسير العمل \u2014 جاهزة في ثوانٍ.' },
+  'ai.1.title': { en: 'Smart Field Suggestions', ar: 'اقتراحات الحقول الذكية' },
+  'ai.1.desc': { en: 'AI analyzes your industry and suggests optimal field types, picklist values, and validation rules based on best practices.', ar: 'الذكاء الاصطناعي يحلل صناعتك ويقترح أنواع الحقول المثلى وقيم القوائم وقواعد التحقق بناءً على أفضل الممارسات.' },
+  'ai.2.title': { en: 'Workflow Builder Agent', ar: 'وكيل بناء سير العمل' },
+  'ai.2.desc': { en: 'Tell the AI what should happen when a deal closes or a lead goes cold. It builds the complete automation workflow for you.', ar: 'أخبر الذكاء الاصطناعي بما يجب أن يحدث عند إغلاق صفقة أو فقدان عميل محتمل. يبني سير العمل الآلي الكامل لك.' },
+  'ai.3.title': { en: 'Natural Language Queries', ar: 'استعلامات باللغة الطبيعية' },
+  'ai.3.desc': { en: 'Ask questions like "Show me all deals over $50K closing this month" and get instant results. No filters to configure.', ar: 'اطرح أسئلة مثل "أرني جميع الصفقات التي تزيد عن 50 ألف والتي تُغلق هذا الشهر" واحصل على نتائج فورية. لا حاجة لتكوين فلاتر.' },
+  'ai.4.title': { en: 'Template Generator', ar: 'مولّد القوالب' },
+  'ai.4.desc': { en: 'Describe your industry and business model. AI generates a complete template with modules, fields, workflows, and sample data.', ar: 'صف صناعتك ونموذج عملك. الذكاء الاصطناعي يولّد قالباً كاملاً بالوحدات والحقول وسير العمل وبيانات العينة.' },
+  'ai.5.title': { en: 'Predictive Insights', ar: 'رؤى تنبؤية' },
+  'ai.5.desc': { en: 'AI analyzes your data patterns to predict deal outcomes, suggest best next actions, and identify at-risk accounts.', ar: 'الذكاء الاصطناعي يحلل أنماط بياناتك للتنبؤ بنتائج الصفقات واقتراح أفضل الإجراءات التالية وتحديد الحسابات المعرضة للخطر.' },
+  'ai.try': { en: 'Try it yourself', ar: 'جرّب بنفسك' },
+  'ai.prompt': { en: '"Create a module for tracking customer support tickets with priority levels, assignee, SLA timer, and auto-escalation workflow"', ar: '"أنشئ وحدة لتتبع تذاكر دعم العملاء مع مستويات الأولوية والمكلّف ومؤقت SLA وسير عمل التصعيد التلقائي"' },
+  'ai.result': { en: 'AI generates: 8 fields, 2 workflows, 1 assignment rule \u2014 in 10 seconds', ar: 'الذكاء الاصطناعي يولّد: 8 حقول، 2 سير عمل، 1 قاعدة تعيين \u2014 في 10 ثوانٍ' },
+  'how.label': { en: 'How It Works', ar: 'كيف يعمل' },
+  'how.title': { en: 'From zero to live in 3 steps', ar: 'من الصفر إلى الإطلاق في 3 خطوات' },
+  'how.0.title': { en: 'Choose a Template', ar: 'اختر قالباً' },
+  'how.0.desc': { en: 'Pick an industry template or start from scratch. Templates come with modules, fields, workflows, and sample data.', ar: 'اختر قالب صناعي أو ابدأ من الصفر. القوالب تأتي مع وحدات وحقول وسير عمل وبيانات عينة.' },
+  'how.1.title': { en: 'Customize with AI', ar: 'خصص بالذكاء الاصطناعي' },
+  'how.1.desc': { en: 'Describe what you need in plain English. AI agents build custom modules, fields, and automations instantly.', ar: 'صف ما تحتاجه بلغة بسيطة. وكلاء الذكاء الاصطناعي يبنون وحدات وحقول وأتمتة مخصصة فوراً.' },
+  'how.2.title': { en: 'Go Live', ar: 'انطلق' },
+  'how.2.desc': { en: 'Invite your team, import data, and start working. Your custom ERP is ready on your own domain.', ar: 'ادعُ فريقك واستورد البيانات وابدأ العمل. نظام ERP المخصص جاهز على نطاقك الخاص.' },
+  'price.label': { en: 'Pricing', ar: 'الأسعار' },
+  'price.title': { en: 'Simple, transparent pricing', ar: 'أسعار بسيطة وشفافة' },
+  'price.sub': { en: 'Start free. Scale as you grow. No hidden fees.', ar: 'ابدأ مجاناً. توسع مع نموك. لا رسوم خفية.' },
+  'price.starter': { en: 'Starter', ar: 'المبتدئ' },
+  'price.starter.desc': { en: 'For individuals and small teams getting started.', ar: 'للأفراد والفرق الصغيرة في البداية.' },
+  'price.starter.cta': { en: 'Start Free', ar: 'ابدأ مجاناً' },
+  'price.pro': { en: 'Professional', ar: 'الاحترافي' },
+  'price.pro.desc': { en: 'For growing teams that need full customization.', ar: 'للفرق النامية التي تحتاج تخصيصاً كاملاً.' },
+  'price.pro.cta': { en: 'Start Free Trial', ar: 'ابدأ تجربة مجانية' },
+  'price.ent': { en: 'Enterprise', ar: 'المؤسسات' },
+  'price.ent.desc': { en: 'For organizations with advanced security needs.', ar: 'للمؤسسات ذات احتياجات الأمان المتقدمة.' },
+  'price.ent.cta': { en: 'Contact Sales', ar: 'تواصل مع المبيعات' },
+  'price.free': { en: 'Free', ar: 'مجاني' },
+  'price.forever': { en: 'forever', ar: 'للأبد' },
+  'price.peruser': { en: '/user/month', ar: '/مستخدم/شهر' },
+  'price.custom': { en: 'Custom', ar: 'مخصص' },
+  'price.f.3users': { en: '3 users included', ar: '3 مستخدمين مشمولين' },
+  'price.f.5mod': { en: '5 custom modules', ar: '5 وحدات مخصصة' },
+  'price.f.1000': { en: '1,000 records per module', ar: '1,000 سجل لكل وحدة' },
+  'price.f.1tmpl': { en: '1 industry template', ar: 'قالب صناعي واحد' },
+  'price.f.basic': { en: 'Basic workflow automation', ar: 'أتمتة سير عمل أساسية' },
+  'price.f.email': { en: 'Email support', ar: 'دعم بالبريد الإلكتروني' },
+  'price.f.unluser': { en: 'Unlimited users', ar: 'مستخدمون غير محدودين' },
+  'price.f.unlmod': { en: 'Unlimited modules', ar: 'وحدات غير محدودة' },
+  'price.f.unlrec': { en: 'Unlimited records', ar: 'سجلات غير محدودة' },
+  'price.f.alltmpl': { en: 'All industry templates', ar: 'جميع القوالب الصناعية' },
+  'price.f.adv': { en: 'Advanced workflows & functions', ar: 'سير عمل ودوال متقدمة' },
+  'price.f.aimod': { en: 'AI module creator', ar: 'منشئ وحدات بالذكاء الاصطناعي' },
+  'price.f.roles': { en: 'Role hierarchy & profiles', ar: 'تسلسل الأدوار والملفات الشخصية' },
+  'price.f.priority': { en: 'Priority support', ar: 'دعم ذو أولوية' },
+  'price.f.everything': { en: 'Everything in Professional', ar: 'كل ما في الاحترافي' },
+  'price.f.multitenant': { en: 'Multi-tenant platform admin', ar: 'إدارة منصة متعددة المستأجرين' },
+  'price.f.customai': { en: 'Custom AI agent training', ar: 'تدريب وكيل ذكاء اصطناعي مخصص' },
+  'price.f.sso': { en: 'SSO & advanced security', ar: 'تسجيل دخول موحد وأمان متقدم' },
+  'price.f.infra': { en: 'Dedicated infrastructure', ar: 'بنية تحتية مخصصة' },
+  'price.f.integrations': { en: 'Custom integrations', ar: 'تكاملات مخصصة' },
+  'price.f.sla': { en: 'SLA guarantee', ar: 'ضمان SLA' },
+  'price.f.csm': { en: 'Dedicated success manager', ar: 'مدير نجاح مخصص' },
+  'cta.title': { en: 'Ready to unbox your business potential?', ar: 'مستعد لإطلاق إمكانات عملك؟' },
+  'cta.sub': { en: 'Join thousands of businesses running on ERPnBox. Start with a template, customize with AI, and deploy on your domain today.', ar: 'انضم إلى آلاف الشركات التي تعمل على ERPnBox. ابدأ بقالب، خصص بالذكاء الاصطناعي، وانشر على نطاقك اليوم.' },
+  'cta.trial': { en: 'Start Free Trial', ar: 'ابدأ تجربة مجانية' },
+  'cta.demo': { en: 'Schedule a Demo', ar: 'احجز عرضاً توضيحياً' },
+  'footer.tagline': { en: 'The modular ERP platform that grows with your business.', ar: 'منصة ERP المعيارية التي تنمو مع عملك.' },
+  'footer.product': { en: 'Product', ar: 'المنتج' },
+  'footer.integrations': { en: 'Integrations', ar: 'التكاملات' },
+  'footer.company': { en: 'Company', ar: 'الشركة' },
+  'footer.about': { en: 'About', ar: 'عن الشركة' },
+  'footer.blog': { en: 'Blog', ar: 'المدونة' },
+  'footer.careers': { en: 'Careers', ar: 'الوظائف' },
+  'footer.contact': { en: 'Contact', ar: 'اتصل بنا' },
+  'footer.legal': { en: 'Legal', ar: 'قانوني' },
+  'footer.privacy': { en: 'Privacy Policy', ar: 'سياسة الخصوصية' },
+  'footer.terms': { en: 'Terms of Service', ar: 'شروط الخدمة' },
+  'footer.security': { en: 'Security', ar: 'الأمان' },
+  'footer.gdpr': { en: 'GDPR', ar: 'حماية البيانات' },
+  'footer.copy': { en: 'ERPnBox. All rights reserved.', ar: 'ERPnBox. جميع الحقوق محفوظة.' },
+  'mock.deals': { en: 'Open Deals', ar: 'صفقات مفتوحة' },
+  'mock.leads': { en: 'New Leads', ar: 'عملاء جدد' },
+  'mock.meetings': { en: 'Meetings Today', ar: 'اجتماعات اليوم' },
+  'mock.tasks': { en: 'Tasks Due', ar: 'مهام مستحقة' },
+  'mock.pipeline': { en: 'Revenue Pipeline', ar: 'مسار الإيرادات' },
+  'mock.topmod': { en: 'Top Modules', ar: 'أهم الوحدات' },
+  'Agent': { en: 'Agent', ar: 'وكيل' },
+  'Intelligence': { en: 'Intelligence', ar: 'ذكاء' },
+};
 
 // ─── SVG Icon Components ──────────────────────────────────────────────────────
 
@@ -245,65 +395,12 @@ const AI_FEATURES = [
   },
 ];
 
-const PRICING = [
-  {
-    name: 'Starter',
-    price: 'Free',
-    period: 'forever',
-    description: 'For individuals and small teams getting started.',
-    features: [
-      '3 users included',
-      '5 custom modules',
-      '1,000 records per module',
-      '1 industry template',
-      'Basic workflow automation',
-      'Email support',
-    ],
-    cta: 'Start Free',
-    highlighted: false,
-  },
-  {
-    name: 'Professional',
-    price: '$29',
-    period: '/user/month',
-    description: 'For growing teams that need full customization.',
-    features: [
-      'Unlimited users',
-      'Unlimited modules',
-      'Unlimited records',
-      'All industry templates',
-      'Advanced workflows & functions',
-      'AI module creator',
-      'Role hierarchy & profiles',
-      'Priority support',
-    ],
-    cta: 'Start Free Trial',
-    highlighted: true,
-  },
-  {
-    name: 'Enterprise',
-    price: 'Custom',
-    period: '',
-    description: 'For organizations with advanced security needs.',
-    features: [
-      'Everything in Professional',
-      'Multi-tenant platform admin',
-      'Custom AI agent training',
-      'SSO & advanced security',
-      'Dedicated infrastructure',
-      'Custom integrations',
-      'SLA guarantee',
-      'Dedicated success manager',
-    ],
-    cta: 'Contact Sales',
-    highlighted: false,
-  },
-];
 
 // ─── Components ────────────────────────────────────────────────────────────────
 
 function Navbar() {
   const [open, setOpen] = useState(false);
+  const { lang, t, toggle } = useLang();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
@@ -311,7 +408,7 @@ function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <a href="#" className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="ERPnBox" className="h-9 w-9" />
+            <img src="/logo.png" alt="ERPnBox" className="h-10 w-auto" />
             <span className="text-xl font-bold text-brand-900">
               ERP<span className="text-brand-500">n</span>Box
             </span>
@@ -319,46 +416,60 @@ function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">Features</a>
-            <a href="#templates" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">Templates</a>
-            <a href="#ai" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">AI Agents</a>
-            <a href="#pricing" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">Pricing</a>
+            <a href="#features" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">{t('nav.features')}</a>
+            <a href="#templates" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">{t('nav.templates')}</a>
+            <a href="#ai" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">{t('nav.ai')}</a>
+            <a href="#pricing" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">{t('nav.pricing')}</a>
           </div>
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
+            <button
+              onClick={toggle}
+              className="px-2.5 py-1 rounded-md text-xs font-semibold border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+            >
+              {lang === 'en' ? 'العربية' : 'English'}
+            </button>
             <a href="#" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">
-              Sign In
+              {t('nav.signin')}
             </a>
             <a
               href="#pricing"
               className="inline-flex items-center px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 transition-colors shadow-sm"
             >
-              Start Free Trial
+              {t('nav.trial')}
             </a>
           </div>
 
           {/* Mobile menu button */}
-          <button
-            onClick={() => setOpen(!open)}
-            className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100"
-          >
-            {open ? <IconX /> : <IconMenu />}
-          </button>
+          <div className="md:hidden flex items-center gap-2">
+            <button
+              onClick={toggle}
+              className="px-2 py-1 rounded-md text-xs font-semibold border border-gray-200 text-gray-600"
+            >
+              {lang === 'en' ? 'ع' : 'En'}
+            </button>
+            <button
+              onClick={() => setOpen(!open)}
+              className="p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+            >
+              {open ? <IconX /> : <IconMenu />}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Mobile menu */}
       {open && (
         <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-3">
-          <a href="#features" onClick={() => setOpen(false)} className="block text-sm font-medium text-gray-700 py-2">Features</a>
-          <a href="#templates" onClick={() => setOpen(false)} className="block text-sm font-medium text-gray-700 py-2">Templates</a>
-          <a href="#ai" onClick={() => setOpen(false)} className="block text-sm font-medium text-gray-700 py-2">AI Agents</a>
-          <a href="#pricing" onClick={() => setOpen(false)} className="block text-sm font-medium text-gray-700 py-2">Pricing</a>
+          <a href="#features" onClick={() => setOpen(false)} className="block text-sm font-medium text-gray-700 py-2">{t('nav.features')}</a>
+          <a href="#templates" onClick={() => setOpen(false)} className="block text-sm font-medium text-gray-700 py-2">{t('nav.templates')}</a>
+          <a href="#ai" onClick={() => setOpen(false)} className="block text-sm font-medium text-gray-700 py-2">{t('nav.ai')}</a>
+          <a href="#pricing" onClick={() => setOpen(false)} className="block text-sm font-medium text-gray-700 py-2">{t('nav.pricing')}</a>
           <div className="pt-3 border-t border-gray-100 space-y-2">
-            <a href="#" className="block text-sm font-medium text-gray-600 py-2">Sign In</a>
+            <a href="#" className="block text-sm font-medium text-gray-600 py-2">{t('nav.signin')}</a>
             <a href="#pricing" className="block text-center px-4 py-2.5 rounded-lg bg-brand-600 text-white text-sm font-semibold">
-              Start Free Trial
+              {t('nav.trial')}
             </a>
           </div>
         </div>
@@ -368,64 +479,38 @@ function Navbar() {
 }
 
 function Hero() {
+  const { t } = useLang();
   return (
     <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-28 overflow-hidden">
-      {/* Background decoration */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-b from-brand-100/60 to-transparent rounded-full blur-3xl" />
         <div className="absolute top-20 right-0 w-[400px] h-[400px] bg-gradient-to-b from-blue-100/40 to-transparent rounded-full blur-3xl" />
       </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-4xl mx-auto">
-          {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-50 border border-brand-200 text-brand-700 text-sm font-medium mb-8">
             <IconSparkles className="w-4 h-4" />
-            Now with AI-Powered Module Creation
+            {t('hero.badge')}
           </div>
-
-          {/* Headline */}
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-gray-900 leading-[1.1]">
-            Your Business,{' '}
-            <span className="text-gradient from-brand-500 to-brand-300">
-              Unboxed
-            </span>
+            {t('hero.title1')}{' '}
+            <span className="text-gradient from-brand-500 to-brand-300">{t('hero.title2')}</span>
           </h1>
-
-          {/* Subheadline */}
-          <p className="mt-6 text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            The modular ERP platform with ready-to-use industry templates.
-            Launch in minutes with AI agents that build your custom modules, workflows, and automations.
-          </p>
-
-          {/* CTA Buttons */}
+          <p className="mt-6 text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">{t('hero.sub')}</p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href="#pricing"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-brand-600 text-white font-semibold text-lg hover:bg-brand-700 transition-all shadow-lg shadow-brand-600/25 hover:shadow-xl hover:shadow-brand-600/30"
-            >
-              Start Free Trial
+            <a href="#pricing" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-brand-600 text-white font-semibold text-lg hover:bg-brand-700 transition-all shadow-lg shadow-brand-600/25 hover:shadow-xl hover:shadow-brand-600/30">
+              {t('hero.trial')}
               <IconArrowRight className="w-5 h-5" />
             </a>
-            <a
-              href="#features"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-white text-gray-700 font-semibold text-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all"
-            >
+            <a href="#features" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-white text-gray-700 font-semibold text-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all">
               <IconPlay className="w-5 h-5 text-brand-600" />
-              Watch Demo
+              {t('hero.demo')}
             </a>
           </div>
-
-          {/* Social proof */}
-          <p className="mt-8 text-sm text-gray-500">
-            No credit card required &middot; 14-day free trial &middot; Cancel anytime
-          </p>
+          <p className="mt-8 text-sm text-gray-500">{t('hero.proof')}</p>
         </div>
-
-        {/* Hero visual - Dashboard mockup */}
         <div className="mt-16 relative">
           <div className="bg-white rounded-2xl shadow-2xl shadow-gray-200/60 border border-gray-200 overflow-hidden mx-auto max-w-5xl">
-            {/* Browser chrome */}
             <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-200">
               <div className="flex gap-1.5">
                 <div className="w-3 h-3 rounded-full bg-red-400" />
@@ -433,34 +518,27 @@ function Hero() {
                 <div className="w-3 h-3 rounded-full bg-green-400" />
               </div>
               <div className="flex-1 mx-4">
-                <div className="bg-white rounded-md border border-gray-200 px-3 py-1 text-xs text-gray-400 max-w-xs mx-auto">
-                  app.erpnbox.com/dashboard
-                </div>
+                <div className="bg-white rounded-md border border-gray-200 px-3 py-1 text-xs text-gray-400 max-w-xs mx-auto">app.erpnbox.com/dashboard</div>
               </div>
             </div>
-            {/* Dashboard content mockup */}
             <div className="p-6 bg-gradient-to-b from-gray-50 to-white">
               <div className="grid grid-cols-4 gap-4 mb-6">
                 {[
-                  { label: 'Open Deals', value: '$284,000', change: '+12%', color: 'text-emerald-600 bg-emerald-50' },
-                  { label: 'New Leads', value: '147', change: '+8%', color: 'text-blue-600 bg-blue-50' },
-                  { label: 'Meetings Today', value: '12', change: '', color: 'text-violet-600 bg-violet-50' },
-                  { label: 'Tasks Due', value: '23', change: '-3', color: 'text-amber-600 bg-amber-50' },
+                  { key: 'mock.deals', value: '$284,000', change: '+12%', color: 'text-emerald-600 bg-emerald-50' },
+                  { key: 'mock.leads', value: '147', change: '+8%', color: 'text-blue-600 bg-blue-50' },
+                  { key: 'mock.meetings', value: '12', change: '', color: 'text-violet-600 bg-violet-50' },
+                  { key: 'mock.tasks', value: '23', change: '-3', color: 'text-amber-600 bg-amber-50' },
                 ].map((stat) => (
-                  <div key={stat.label} className="bg-white rounded-lg border border-gray-100 p-4">
-                    <p className="text-xs text-gray-500">{stat.label}</p>
+                  <div key={stat.key} className="bg-white rounded-lg border border-gray-100 p-4">
+                    <p className="text-xs text-gray-500">{t(stat.key)}</p>
                     <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                    {stat.change && (
-                      <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${stat.color}`}>
-                        {stat.change}
-                      </span>
-                    )}
+                    {stat.change && <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${stat.color}`}>{stat.change}</span>}
                   </div>
                 ))}
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2 bg-white rounded-lg border border-gray-100 p-4 h-48">
-                  <p className="text-sm font-semibold text-gray-700 mb-3">Revenue Pipeline</p>
+                  <p className="text-sm font-semibold text-gray-700 mb-3">{t('mock.pipeline')}</p>
                   <div className="flex items-end gap-2 h-32">
                     {[40, 65, 45, 80, 55, 70, 90, 60, 85, 75, 95, 88].map((h, i) => (
                       <div key={i} className="flex-1 rounded-t bg-gradient-to-t from-brand-500 to-brand-300" style={{ height: `${h}%` }} />
@@ -468,14 +546,9 @@ function Hero() {
                   </div>
                 </div>
                 <div className="bg-white rounded-lg border border-gray-100 p-4 h-48">
-                  <p className="text-sm font-semibold text-gray-700 mb-3">Top Modules</p>
+                  <p className="text-sm font-semibold text-gray-700 mb-3">{t('mock.topmod')}</p>
                   <div className="space-y-3">
-                    {[
-                      { name: 'Deals', pct: 85 },
-                      { name: 'Leads', pct: 72 },
-                      { name: 'Contacts', pct: 60 },
-                      { name: 'Meetings', pct: 45 },
-                    ].map((m) => (
+                    {[{ name: 'Deals', pct: 85 }, { name: 'Leads', pct: 72 }, { name: 'Contacts', pct: 60 }, { name: 'Meetings', pct: 45 }].map((m) => (
                       <div key={m.name}>
                         <div className="flex justify-between text-xs mb-1">
                           <span className="text-gray-600">{m.name}</span>
@@ -491,7 +564,6 @@ function Hero() {
               </div>
             </div>
           </div>
-          {/* Gradient fade at bottom */}
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white to-transparent" />
         </div>
       </div>
@@ -500,30 +572,23 @@ function Hero() {
 }
 
 function Features() {
+  const { t } = useLang();
   return (
     <section id="features" className="py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <p className="text-sm font-semibold text-brand-600 uppercase tracking-wide mb-3">Everything You Need</p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
-            One platform, unlimited possibilities
-          </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            From lead capture to deal close, from workflow automation to AI insights &mdash; ERPnBox handles it all.
-          </p>
+          <p className="text-sm font-semibold text-brand-600 uppercase tracking-wide mb-3">{t('feat.label')}</p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">{t('feat.title')}</h2>
+          <p className="mt-4 text-lg text-gray-600">{t('feat.sub')}</p>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {FEATURES.map((feature) => (
-            <div
-              key={feature.title}
-              className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-brand-100 transition-all group"
-            >
+          {FEATURES.map((feature, i) => (
+            <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-brand-100 transition-all group">
               <div className="w-12 h-12 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center mb-4 group-hover:bg-brand-100 transition-colors">
                 <feature.icon className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
-              <p className="text-sm text-gray-600 leading-relaxed">{feature.description}</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t(`feat.${i}.title`)}</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">{t(`feat.${i}.desc`)}</p>
             </div>
           ))}
         </div>
@@ -533,58 +598,38 @@ function Features() {
 }
 
 function Templates() {
+  const { t } = useLang();
   return (
     <section id="templates" className="py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <p className="text-sm font-semibold text-brand-600 uppercase tracking-wide mb-3">Ready-to-Use Templates</p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
-            Launch your CRM in minutes, not months
-          </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            Choose an industry template pre-loaded with modules, fields, workflows, and sample data.
-            Customize everything to fit your business perfectly.
-          </p>
+          <p className="text-sm font-semibold text-brand-600 uppercase tracking-wide mb-3">{t('tmpl.label')}</p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">{t('tmpl.title')}</h2>
+          <p className="mt-4 text-lg text-gray-600">{t('tmpl.sub')}</p>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {TEMPLATES.map((template) => (
-            <div
-              key={template.name}
-              className="relative group overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-lg transition-all"
-            >
-              {/* Gradient header */}
+          {TEMPLATES.map((template, i) => (
+            <div key={i} className="relative group overflow-hidden rounded-2xl border border-gray-200 bg-white hover:shadow-lg transition-all">
               <div className={`h-32 bg-gradient-to-br ${template.color} p-6 flex items-end`}>
-                <h3 className="text-xl font-bold text-white">{template.name}</h3>
+                <h3 className="text-xl font-bold text-white">{t(`tmpl.${i}.name`)}</h3>
               </div>
               <div className="p-6">
-                <p className="text-sm text-gray-600 mb-4">{template.description}</p>
+                <p className="text-sm text-gray-600 mb-4">{t(`tmpl.${i}.desc`)}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {template.modules.map((mod) => (
-                    <span
-                      key={mod}
-                      className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full"
-                    >
-                      {mod}
-                    </span>
+                    <span key={mod} className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">{mod}</span>
                   ))}
                 </div>
-                <a
-                  href="#pricing"
-                  className="mt-4 inline-flex items-center text-sm font-medium text-brand-600 hover:text-brand-700 group-hover:gap-2 gap-1 transition-all"
-                >
-                  Use this template
+                <a href="#pricing" className="mt-4 inline-flex items-center text-sm font-medium text-brand-600 hover:text-brand-700 group-hover:gap-2 gap-1 transition-all">
+                  {t('tmpl.use')}
                   <IconArrowRight className="w-4 h-4" />
                 </a>
               </div>
             </div>
           ))}
         </div>
-
         <div className="text-center mt-12">
-          <p className="text-gray-500 text-sm">
-            More templates added monthly. Or create your own from scratch.
-          </p>
+          <p className="text-gray-500 text-sm">{t('tmpl.more')}</p>
         </div>
       </div>
     </section>
@@ -592,63 +637,48 @@ function Templates() {
 }
 
 function AISection() {
+  const { t } = useLang();
   return (
     <section id="ai" className="py-24 bg-gradient-to-b from-brand-950 to-brand-900 relative overflow-hidden">
-      {/* Decorative elements */}
       <div className="absolute inset-0 -z-0">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand-800/50 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-brand-700/30 rounded-full blur-3xl" />
       </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-800/50 border border-brand-700/50 text-brand-300 text-sm font-medium mb-6">
             <IconSparkles className="w-4 h-4" />
-            Powered by AI
+            {t('ai.badge')}
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
-            AI Agents that build your ERP
-          </h2>
-          <p className="mt-4 text-lg text-brand-200">
-            Stop configuring. Start describing. Our AI agents turn your words into
-            fully functional modules, workflows, and automations.
-          </p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white">{t('ai.title')}</h2>
+          <p className="mt-4 text-lg text-brand-200">{t('ai.sub')}</p>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {AI_FEATURES.map((feature) => (
-            <div
-              key={feature.title}
-              className="bg-brand-800/40 backdrop-blur-sm rounded-xl p-6 border border-brand-700/40 hover:border-brand-600/60 transition-all"
-            >
+          {AI_FEATURES.map((feature, i) => (
+            <div key={i} className="bg-brand-800/40 backdrop-blur-sm rounded-xl p-6 border border-brand-700/40 hover:border-brand-600/60 transition-all">
               <div className="flex items-center gap-2 mb-3">
                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                   feature.badge === 'Agent'
                     ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
                     : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                }`}>
-                  {feature.badge}
-                </span>
+                }`}>{t(feature.badge)}</span>
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-              <p className="text-sm text-brand-300 leading-relaxed">{feature.description}</p>
+              <h3 className="text-lg font-semibold text-white mb-2">{t(`ai.${i}.title`)}</h3>
+              <p className="text-sm text-brand-300 leading-relaxed">{t(`ai.${i}.desc`)}</p>
             </div>
           ))}
         </div>
-
-        {/* AI Demo prompt */}
         <div className="mt-16 max-w-2xl mx-auto">
           <div className="bg-brand-800/60 backdrop-blur rounded-2xl border border-brand-700/50 p-6">
-            <p className="text-xs text-brand-400 uppercase tracking-wide mb-3">Try it yourself</p>
+            <p className="text-xs text-brand-400 uppercase tracking-wide mb-3">{t('ai.try')}</p>
             <div className="bg-brand-900/80 rounded-xl p-4 border border-brand-700/30">
               <p className="text-brand-200 text-sm font-mono">
-                <span className="text-brand-500">&gt;</span> "Create a module for tracking customer support tickets with
-                priority levels, assignee, SLA timer, and auto-escalation workflow"
+                <span className="text-brand-500">&gt;</span> {t('ai.prompt')}
               </p>
             </div>
             <div className="mt-4 flex items-center gap-2 text-brand-300 text-sm">
               <IconSparkles className="w-4 h-4 text-brand-400" />
-              AI generates: 8 fields, 2 workflows, 1 assignment rule — in 10 seconds
+              {t('ai.result')}
             </div>
           </div>
         </div>
@@ -658,46 +688,25 @@ function AISection() {
 }
 
 function HowItWorks() {
-  const steps = [
-    {
-      number: '01',
-      title: 'Choose a Template',
-      description: 'Pick an industry template or start from scratch. Templates come with modules, fields, workflows, and sample data.',
-    },
-    {
-      number: '02',
-      title: 'Customize with AI',
-      description: 'Describe what you need in plain English. AI agents build custom modules, fields, and automations instantly.',
-    },
-    {
-      number: '03',
-      title: 'Go Live',
-      description: 'Invite your team, import data, and start working. Your custom ERP is ready on your own domain.',
-    },
-  ];
-
+  const { t } = useLang();
+  const steps = ['01', '02', '03'];
   return (
     <section className="py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <p className="text-sm font-semibold text-brand-600 uppercase tracking-wide mb-3">How It Works</p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
-            From zero to live in 3 steps
-          </h2>
+          <p className="text-sm font-semibold text-brand-600 uppercase tracking-wide mb-3">{t('how.label')}</p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">{t('how.title')}</h2>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {steps.map((step, i) => (
-            <div key={step.number} className="relative">
-              {i < steps.length - 1 && (
-                <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-px bg-brand-200" />
-              )}
+          {steps.map((num, i) => (
+            <div key={num} className="relative">
+              {i < 2 && <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-px bg-brand-200" />}
               <div className="text-center">
                 <div className="w-24 h-24 rounded-2xl bg-white border-2 border-brand-200 flex items-center justify-center mx-auto mb-6 shadow-sm">
-                  <span className="text-3xl font-extrabold text-brand-600">{step.number}</span>
+                  <span className="text-3xl font-extrabold text-brand-600">{num}</span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{step.title}</h3>
-                <p className="text-sm text-gray-600 leading-relaxed max-w-xs mx-auto">{step.description}</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{t(`how.${i}.title`)}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed max-w-xs mx-auto">{t(`how.${i}.desc`)}</p>
               </div>
             </div>
           ))}
@@ -708,67 +717,46 @@ function HowItWorks() {
 }
 
 function Pricing() {
+  const { t } = useLang();
+  const plans = [
+    { nameKey: 'price.starter', priceKey: 'price.free', periodKey: 'price.forever', descKey: 'price.starter.desc', ctaKey: 'price.starter.cta', highlighted: false,
+      featureKeys: ['price.f.3users', 'price.f.5mod', 'price.f.1000', 'price.f.1tmpl', 'price.f.basic', 'price.f.email'] },
+    { nameKey: 'price.pro', priceKey: '$29', periodKey: 'price.peruser', descKey: 'price.pro.desc', ctaKey: 'price.pro.cta', highlighted: true,
+      featureKeys: ['price.f.unluser', 'price.f.unlmod', 'price.f.unlrec', 'price.f.alltmpl', 'price.f.adv', 'price.f.aimod', 'price.f.roles', 'price.f.priority'] },
+    { nameKey: 'price.ent', priceKey: 'price.custom', periodKey: '', descKey: 'price.ent.desc', ctaKey: 'price.ent.cta', highlighted: false,
+      featureKeys: ['price.f.everything', 'price.f.multitenant', 'price.f.customai', 'price.f.sso', 'price.f.infra', 'price.f.integrations', 'price.f.sla', 'price.f.csm'] },
+  ];
   return (
     <section id="pricing" className="py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <p className="text-sm font-semibold text-brand-600 uppercase tracking-wide mb-3">Pricing</p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
-            Simple, transparent pricing
-          </h2>
-          <p className="mt-4 text-lg text-gray-600">
-            Start free. Scale as you grow. No hidden fees.
-          </p>
+          <p className="text-sm font-semibold text-brand-600 uppercase tracking-wide mb-3">{t('price.label')}</p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">{t('price.title')}</h2>
+          <p className="mt-4 text-lg text-gray-600">{t('price.sub')}</p>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {PRICING.map((plan) => (
-            <div
-              key={plan.name}
-              className={`rounded-2xl p-8 ${
-                plan.highlighted
-                  ? 'bg-brand-600 text-white shadow-xl shadow-brand-600/25 ring-4 ring-brand-600/20 scale-105'
-                  : 'bg-white border border-gray-200 shadow-sm'
-              }`}
-            >
-              <h3 className={`text-lg font-semibold ${plan.highlighted ? 'text-brand-100' : 'text-gray-900'}`}>
-                {plan.name}
-              </h3>
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className={`text-4xl font-extrabold ${plan.highlighted ? 'text-white' : 'text-gray-900'}`}>
-                  {plan.price}
-                </span>
-                {plan.period && (
-                  <span className={`text-sm ${plan.highlighted ? 'text-brand-200' : 'text-gray-500'}`}>
-                    {plan.period}
-                  </span>
-                )}
+          {plans.map((plan) => {
+            const price = plan.priceKey.startsWith('price.') ? t(plan.priceKey) : plan.priceKey;
+            return (
+              <div key={plan.nameKey} className={`rounded-2xl p-8 ${plan.highlighted ? 'bg-brand-600 text-white shadow-xl shadow-brand-600/25 ring-4 ring-brand-600/20 scale-105' : 'bg-white border border-gray-200 shadow-sm'}`}>
+                <h3 className={`text-lg font-semibold ${plan.highlighted ? 'text-brand-100' : 'text-gray-900'}`}>{t(plan.nameKey)}</h3>
+                <div className="mt-4 flex items-baseline gap-1">
+                  <span className={`text-4xl font-extrabold ${plan.highlighted ? 'text-white' : 'text-gray-900'}`}>{price}</span>
+                  {plan.periodKey && <span className={`text-sm ${plan.highlighted ? 'text-brand-200' : 'text-gray-500'}`}>{t(plan.periodKey)}</span>}
+                </div>
+                <p className={`mt-2 text-sm ${plan.highlighted ? 'text-brand-200' : 'text-gray-500'}`}>{t(plan.descKey)}</p>
+                <ul className="mt-6 space-y-3">
+                  {plan.featureKeys.map((fk) => (
+                    <li key={fk} className="flex items-start gap-2">
+                      <IconCheck className={`w-5 h-5 mt-0.5 flex-shrink-0 ${plan.highlighted ? 'text-brand-200' : 'text-brand-500'}`} />
+                      <span className={`text-sm ${plan.highlighted ? 'text-brand-100' : 'text-gray-600'}`}>{t(fk)}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a href="#" className={`mt-8 block text-center py-3 px-6 rounded-xl font-semibold text-sm transition-all ${plan.highlighted ? 'bg-white text-brand-600 hover:bg-brand-50 shadow-lg' : 'bg-brand-600 text-white hover:bg-brand-700'}`}>{t(plan.ctaKey)}</a>
               </div>
-              <p className={`mt-2 text-sm ${plan.highlighted ? 'text-brand-200' : 'text-gray-500'}`}>
-                {plan.description}
-              </p>
-              <ul className="mt-6 space-y-3">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2">
-                    <IconCheck className={`w-5 h-5 mt-0.5 flex-shrink-0 ${plan.highlighted ? 'text-brand-200' : 'text-brand-500'}`} />
-                    <span className={`text-sm ${plan.highlighted ? 'text-brand-100' : 'text-gray-600'}`}>
-                      {feature}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <a
-                href="#"
-                className={`mt-8 block text-center py-3 px-6 rounded-xl font-semibold text-sm transition-all ${
-                  plan.highlighted
-                    ? 'bg-white text-brand-600 hover:bg-brand-50 shadow-lg'
-                    : 'bg-brand-600 text-white hover:bg-brand-700'
-                }`}
-              >
-                {plan.cta}
-              </a>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
@@ -776,6 +764,7 @@ function Pricing() {
 }
 
 function CTABanner() {
+  const { t } = useLang();
   return (
     <section className="py-20 bg-brand-600 relative overflow-hidden">
       <div className="absolute inset-0 -z-0">
@@ -783,26 +772,15 @@ function CTABanner() {
         <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-brand-700/50 rounded-full blur-3xl" />
       </div>
       <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">
-          Ready to unbox your business potential?
-        </h2>
-        <p className="text-lg text-brand-100 mb-8 max-w-2xl mx-auto">
-          Join thousands of businesses running on ERPnBox. Start with a template,
-          customize with AI, and deploy on your domain today.
-        </p>
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">{t('cta.title')}</h2>
+        <p className="text-lg text-brand-100 mb-8 max-w-2xl mx-auto">{t('cta.sub')}</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a
-            href="#pricing"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-white text-brand-600 font-semibold text-lg hover:bg-brand-50 transition-all shadow-lg"
-          >
-            Start Free Trial
+          <a href="#pricing" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-white text-brand-600 font-semibold text-lg hover:bg-brand-50 transition-all shadow-lg">
+            {t('cta.trial')}
             <IconArrowRight className="w-5 h-5" />
           </a>
-          <a
-            href="#"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-brand-500/30 text-white font-semibold text-lg border border-brand-400/40 hover:bg-brand-500/50 transition-all"
-          >
-            Schedule a Demo
+          <a href="#" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-brand-500/30 text-white font-semibold text-lg border border-brand-400/40 hover:bg-brand-500/50 transition-all">
+            {t('cta.demo')}
           </a>
         </div>
       </div>
@@ -811,64 +789,50 @@ function CTABanner() {
 }
 
 function Footer() {
+  const { t } = useLang();
   return (
     <footer className="bg-gray-900 text-gray-400 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-          {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2.5 mb-4">
-              <img src="/logo.png" alt="ERPnBox" className="h-8 w-8" />
-              <span className="text-lg font-bold text-white">
-                ERP<span className="text-brand-400">n</span>Box
-              </span>
+              <img src="/logo.png" alt="ERPnBox" className="h-9 w-auto" />
+              <span className="text-lg font-bold text-white">ERP<span className="text-brand-400">n</span>Box</span>
             </div>
-            <p className="text-sm text-gray-500 leading-relaxed">
-              The modular ERP platform that grows with your business.
-            </p>
+            <p className="text-sm text-gray-500 leading-relaxed">{t('footer.tagline')}</p>
           </div>
-
-          {/* Product */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4">Product</h4>
+            <h4 className="text-sm font-semibold text-white mb-4">{t('footer.product')}</h4>
             <ul className="space-y-2.5">
-              <li><a href="#features" className="text-sm hover:text-white transition-colors">Features</a></li>
-              <li><a href="#templates" className="text-sm hover:text-white transition-colors">Templates</a></li>
-              <li><a href="#ai" className="text-sm hover:text-white transition-colors">AI Agents</a></li>
-              <li><a href="#pricing" className="text-sm hover:text-white transition-colors">Pricing</a></li>
-              <li><a href="#" className="text-sm hover:text-white transition-colors">Integrations</a></li>
+              <li><a href="#features" className="text-sm hover:text-white transition-colors">{t('nav.features')}</a></li>
+              <li><a href="#templates" className="text-sm hover:text-white transition-colors">{t('nav.templates')}</a></li>
+              <li><a href="#ai" className="text-sm hover:text-white transition-colors">{t('nav.ai')}</a></li>
+              <li><a href="#pricing" className="text-sm hover:text-white transition-colors">{t('nav.pricing')}</a></li>
+              <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.integrations')}</a></li>
             </ul>
           </div>
-
-          {/* Company */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4">Company</h4>
+            <h4 className="text-sm font-semibold text-white mb-4">{t('footer.company')}</h4>
             <ul className="space-y-2.5">
-              <li><a href="#" className="text-sm hover:text-white transition-colors">About</a></li>
-              <li><a href="#" className="text-sm hover:text-white transition-colors">Blog</a></li>
-              <li><a href="#" className="text-sm hover:text-white transition-colors">Careers</a></li>
-              <li><a href="#" className="text-sm hover:text-white transition-colors">Contact</a></li>
+              <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.about')}</a></li>
+              <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.blog')}</a></li>
+              <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.careers')}</a></li>
+              <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.contact')}</a></li>
             </ul>
           </div>
-
-          {/* Legal */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4">Legal</h4>
+            <h4 className="text-sm font-semibold text-white mb-4">{t('footer.legal')}</h4>
             <ul className="space-y-2.5">
-              <li><a href="#" className="text-sm hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="text-sm hover:text-white transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="text-sm hover:text-white transition-colors">Security</a></li>
-              <li><a href="#" className="text-sm hover:text-white transition-colors">GDPR</a></li>
+              <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.privacy')}</a></li>
+              <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.terms')}</a></li>
+              <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.security')}</a></li>
+              <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.gdpr')}</a></li>
             </ul>
           </div>
         </div>
-
         <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} ERPnBox. All rights reserved.
-          </p>
+          <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} {t('footer.copy')}</p>
           <div className="flex items-center gap-4">
-            {/* Social icons */}
             <a href="#" className="text-gray-500 hover:text-white transition-colors" aria-label="Twitter">
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             </a>
@@ -888,17 +852,23 @@ function Footer() {
 // ─── App ───────────────────────────────────────────────────────────────────────
 
 export default function App() {
+  const [lang, setLang] = useState<Lang>('en');
+  const t = (key: string) => translations[key]?.[lang] ?? key;
+  const toggle = () => setLang((l) => (l === 'en' ? 'ar' : 'en'));
+
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
-      <Hero />
-      <Features />
-      <Templates />
-      <AISection />
-      <HowItWorks />
-      <Pricing />
-      <CTABanner />
-      <Footer />
-    </div>
+    <LangContext.Provider value={{ lang, t, toggle }}>
+      <div className="min-h-screen bg-white" dir={lang === 'ar' ? 'rtl' : 'ltr'} style={lang === 'ar' ? { fontFamily: "'Noto Sans Arabic', 'Inter', system-ui, sans-serif" } : undefined}>
+        <Navbar />
+        <Hero />
+        <Features />
+        <Templates />
+        <AISection />
+        <HowItWorks />
+        <Pricing />
+        <CTABanner />
+        <Footer />
+      </div>
+    </LangContext.Provider>
   );
 }
