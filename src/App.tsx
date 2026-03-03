@@ -387,7 +387,7 @@ function Hero() {
           {/* Headline */}
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-gray-900 leading-[1.1]">
             Your Business,{' '}
-            <span className="text-gradient from-brand-600 to-brand-400">
+            <span className="text-gradient from-brand-500 to-brand-300">
               Unboxed
             </span>
           </h1>
