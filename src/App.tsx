@@ -721,8 +721,8 @@ function Pricing() {
   const plans = [
     { nameKey: 'price.starter', priceKey: 'price.free', periodKey: 'price.forever', descKey: 'price.starter.desc', ctaKey: 'price.starter.cta', highlighted: false,
       featureKeys: ['price.f.3users', 'price.f.5mod', 'price.f.1000', 'price.f.1tmpl', 'price.f.basic', 'price.f.email'] },
-    { nameKey: 'price.pro', priceKey: '$29', periodKey: 'price.peruser', descKey: 'price.pro.desc', ctaKey: 'price.pro.cta', highlighted: true,
-      featureKeys: ['price.f.unluser', 'price.f.unlmod', 'price.f.unlrec', 'price.f.alltmpl', 'price.f.adv', 'price.f.aimod', 'price.f.roles', 'price.f.priority'] },
+    { nameKey: 'price.pro', priceKey: '$15', periodKey: 'price.peruser', descKey: 'price.pro.desc', ctaKey: 'price.pro.cta', highlighted: true,
+      featureKeys: ['price.f.unlmod', 'price.f.unlrec', 'price.f.alltmpl', 'price.f.adv', 'price.f.aimod', 'price.f.roles', 'price.f.priority'] },
     { nameKey: 'price.ent', priceKey: 'price.custom', periodKey: '', descKey: 'price.ent.desc', ctaKey: 'price.ent.cta', highlighted: false,
       featureKeys: ['price.f.everything', 'price.f.multitenant', 'price.f.customai', 'price.f.sso', 'price.f.infra', 'price.f.integrations', 'price.f.sla', 'price.f.csm'] },
   ];
