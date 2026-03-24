@@ -420,6 +420,7 @@ function Navbar() {
             <a href="#templates" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">{t('nav.templates')}</a>
             <a href="#ai" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">{t('nav.ai')}</a>
             <a href="#pricing" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">{t('nav.pricing')}</a>
+            <a href="/docs" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">Help Center</a>
           </div>
 
           {/* Desktop CTA */}
@@ -430,7 +431,7 @@ function Navbar() {
             >
               {lang === 'en' ? 'العربية' : 'English'}
             </button>
-            <a href="#" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">
+            <a href="https://app.erpnbox.com/login" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">
               {t('nav.signin')}
             </a>
             <a
@@ -466,8 +467,9 @@ function Navbar() {
           <a href="#templates" onClick={() => setOpen(false)} className="block text-sm font-medium text-gray-700 py-2">{t('nav.templates')}</a>
           <a href="#ai" onClick={() => setOpen(false)} className="block text-sm font-medium text-gray-700 py-2">{t('nav.ai')}</a>
           <a href="#pricing" onClick={() => setOpen(false)} className="block text-sm font-medium text-gray-700 py-2">{t('nav.pricing')}</a>
+          <a href="/docs" onClick={() => setOpen(false)} className="block text-sm font-medium text-gray-700 py-2">Help Center</a>
           <div className="pt-3 border-t border-gray-100 space-y-2">
-            <a href="#" className="block text-sm font-medium text-gray-600 py-2">{t('nav.signin')}</a>
+            <a href="https://app.erpnbox.com/login" className="block text-sm font-medium text-gray-600 py-2">{t('nav.signin')}</a>
             <a href="#pricing" className="block text-center px-4 py-2.5 rounded-lg bg-brand-600 text-white text-sm font-semibold">
               {t('nav.trial')}
             </a>
@@ -753,7 +755,7 @@ function Pricing() {
                     </li>
                   ))}
                 </ul>
-                <a href="#" className={`mt-8 block text-center py-3 px-6 rounded-xl font-semibold text-sm transition-all ${plan.highlighted ? 'bg-white text-brand-600 hover:bg-brand-50 shadow-lg' : 'bg-brand-600 text-white hover:bg-brand-700'}`}>{t(plan.ctaKey)}</a>
+                <a href="https://app.erpnbox.com/register" className={`mt-8 block text-center py-3 px-6 rounded-xl font-semibold text-sm transition-all ${plan.highlighted ? 'bg-white text-brand-600 hover:bg-brand-50 shadow-lg' : 'bg-brand-600 text-white hover:bg-brand-700'}`}>{t(plan.ctaKey)}</a>
               </div>
             );
           })}
@@ -775,7 +777,7 @@ function CTABanner() {
         <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">{t('cta.title')}</h2>
         <p className="text-lg text-brand-100 mb-8 max-w-2xl mx-auto">{t('cta.sub')}</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href="#pricing" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-white text-brand-600 font-semibold text-lg hover:bg-brand-50 transition-all shadow-lg">
+          <a href="https://app.erpnbox.com/register" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-white text-brand-600 font-semibold text-lg hover:bg-brand-50 transition-all shadow-lg">
             {t('cta.trial')}
             <IconArrowRight className="w-5 h-5" />
           </a>
@@ -804,27 +806,29 @@ function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-white mb-4">{t('footer.product')}</h4>
             <ul className="space-y-2.5">
-              <li><a href="#features" className="text-sm hover:text-white transition-colors">{t('nav.features')}</a></li>
-              <li><a href="#templates" className="text-sm hover:text-white transition-colors">{t('nav.templates')}</a></li>
-              <li><a href="#ai" className="text-sm hover:text-white transition-colors">{t('nav.ai')}</a></li>
+              <li><a href="/features/crm" className="text-sm hover:text-white transition-colors">CRM</a></li>
+              <li><a href="/features/automation" className="text-sm hover:text-white transition-colors">Automation</a></li>
+              <li><a href="/features/analytics" className="text-sm hover:text-white transition-colors">Analytics</a></li>
+              <li><a href="/features/hrms" className="text-sm hover:text-white transition-colors">HRMS</a></li>
+              <li><a href="/features/security" className="text-sm hover:text-white transition-colors">Security</a></li>
               <li><a href="#pricing" className="text-sm hover:text-white transition-colors">{t('nav.pricing')}</a></li>
-              <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.integrations')}</a></li>
             </ul>
           </div>
           <div>
             <h4 className="text-sm font-semibold text-white mb-4">{t('footer.company')}</h4>
             <ul className="space-y-2.5">
-              <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.about')}</a></li>
-              <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.blog')}</a></li>
-              <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.careers')}</a></li>
+              <li><a href="/docs" className="text-sm hover:text-white transition-colors">Help Center</a></li>
+              <li><a href="/developers" className="text-sm hover:text-white transition-colors">API Docs</a></li>
+              <li><a href="/support" className="text-sm hover:text-white transition-colors">Support</a></li>
               <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.contact')}</a></li>
             </ul>
           </div>
           <div>
             <h4 className="text-sm font-semibold text-white mb-4">{t('footer.legal')}</h4>
             <ul className="space-y-2.5">
-              <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.privacy')}</a></li>
-              <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.terms')}</a></li>
+              <li><a href="/privacy-policy" className="text-sm hover:text-white transition-colors">{t('footer.privacy')}</a></li>
+              <li><a href="/terms-of-service" className="text-sm hover:text-white transition-colors">{t('footer.terms')}</a></li>
+              <li><a href="/data-deletion" className="text-sm hover:text-white transition-colors">Data Deletion</a></li>
               <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.security')}</a></li>
               <li><a href="#" className="text-sm hover:text-white transition-colors">{t('footer.gdpr')}</a></li>
             </ul>
