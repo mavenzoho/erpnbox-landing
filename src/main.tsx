@@ -4,7 +4,14 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App';
 import DocsPage from './DocsPage';
 import HelpCenter from './HelpCenter';
-import { CrmFeaturePage, AutomationFeaturePage, AnalyticsFeaturePage, HrmsFeaturePage, SecurityFeaturePage, SupportPage } from './FeaturePages';
+import {
+  CrmFeaturePage,
+  AutomationFeaturePage,
+  AnalyticsFeaturePage,
+  HrmsFeaturePage,
+  SecurityFeaturePage,
+  SupportPage,
+} from './FeaturePages';
 import { PrivacyPolicy, TermsOfService, DataDeletion } from './LegalPages';
 import './index.css';
 
